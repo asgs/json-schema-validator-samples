@@ -20,6 +20,7 @@ import java.io.InputStream;
 public class App {
     public static void main(String[] args) throws IOException, ProcessingException {
         JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
+        // Incorrect data type for x's value and y is missing altogether.
         String json = "{\"x\":1}";
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(json);
@@ -31,10 +32,14 @@ public class App {
         processingReport.forEach(m -> {
                     if (m.getLogLevel() == LogLevel.ERROR) {
                         JsonNode errorNode = m.asJson();
-                        System.out.println("The field " + errorNode.get("instance").get("pointer").asText() + " of " + errorNode.get("message").asText());
+                        String fieldName = errorNode.get("instance").get("pointer").asText();
+                        String errorDescription = "";
+                        if (fieldName != null && !fieldName.isEmpty()) {
+                            errorDescription += "The field " + fieldName + " of ";
+                        }
+                        System.out.println(errorDescription + errorNode.get("message").asText());
                     }
                 }
         );
     }
 }
-
