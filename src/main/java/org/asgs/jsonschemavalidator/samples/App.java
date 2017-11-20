@@ -4,14 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.LogLevel;
-import com.github.fge.jsonschema.core.report.ProcessingMessage;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 
 /**
  * Sample demo to use the json-schema-validator library to validate a JSON doc
@@ -27,7 +25,8 @@ public class App {
         JsonNode jsonNode = mapper.readTree(json);
         InputStream schemaInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("schema.json");
         JsonSchema jsonSchema = factory.getJsonSchema(mapper.readTree(schemaInputStream));
-        ProcessingReport processingReport = jsonSchema.validate(jsonNode);
+        ProcessingReport processingReport = jsonSchema.validateUnchecked(jsonNode, true);
+        System.out.println(processingReport);
         System.out.println("----------------");
         processingReport.forEach(m -> {
                     if (m.getLogLevel() == LogLevel.ERROR) {
