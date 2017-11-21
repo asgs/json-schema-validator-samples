@@ -12,34 +12,60 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Sample demo to use the json-schema-validator library to validate a JSON doc
- * against a predefined JSON Schema.
+ * Sample demo to use the json-schema-validator library to validate JSON strings against predefined
+ * JSON Schemas.
  *
  * @author asgs
  */
 public class App {
-    public static void main(String[] args) throws IOException, ProcessingException {
-        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-        // Incorrect data type for x's value and y is missing altogether.
-        String json = "{\"x\":1}";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode jsonNode = mapper.readTree(json);
-        InputStream schemaInputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("schema.json");
-        JsonSchema jsonSchema = factory.getJsonSchema(mapper.readTree(schemaInputStream));
-        ProcessingReport processingReport = jsonSchema.validateUnchecked(jsonNode, true);
-        System.out.println(processingReport);
-        System.out.println("----------------");
-        processingReport.forEach(m -> {
-                    if (m.getLogLevel() == LogLevel.ERROR) {
-                        JsonNode errorNode = m.asJson();
-                        String fieldName = errorNode.get("instance").get("pointer").asText();
-                        String errorDescription = "";
-                        if (fieldName != null && !fieldName.isEmpty()) {
-                            errorDescription += "The field " + fieldName + " of ";
-                        }
-                        System.out.println(errorDescription + errorNode.get("message").asText());
-                    }
-                }
-        );
-    }
+  private static final JsonSchemaFactory JSON_SCHEMA_FACTORY = JsonSchemaFactory.byDefault();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+  public static final String INSTANCE = "instance";
+  public static final String POINTER = "pointer";
+  public static final String MESSAGE = "message";
+
+  public static void main(String[] args) throws IOException, ProcessingException {
+    validateSimple();
+    validateJsonWithOptinalObjectElements();
+  }
+
+  private static void validateSimple() throws IOException, ProcessingException {
+    // Incorrect data type for x's value and y is missing altogether.
+    String json = "{\"x\":1}";
+    validate(json, "schema.json");
+  }
+
+  private static void validateJsonWithOptinalObjectElements()
+      throws IOException, ProcessingException {
+    String json =
+        "{\"x\":true, \"y\":1, "
+            + "\"optionalObject1\":{\"optionalProp\": \"sdfsdf\"}, "
+            + "\"optionalObject2\":{}}";
+    validate(json, "schema-with-optional-element-objects.json");
+  }
+
+  private static void validate(String json, String schemaFileName)
+      throws IOException, ProcessingException {
+    JsonNode jsonNode = OBJECT_MAPPER.readTree(json);
+    InputStream schemaInputStream =
+        Thread.currentThread().getContextClassLoader().getResourceAsStream(schemaFileName);
+    JsonSchema jsonSchema =
+        JSON_SCHEMA_FACTORY.getJsonSchema(OBJECT_MAPPER.readTree(schemaInputStream));
+    ProcessingReport processingReport = jsonSchema.validateUnchecked(jsonNode, true);
+    System.out.println(processingReport);
+    System.out.println("----------------");
+    processingReport.forEach(
+        m -> {
+          if (m.getLogLevel() == LogLevel.ERROR) {
+            JsonNode errorNode = m.asJson();
+            String fieldName = errorNode.get(INSTANCE).get(POINTER).asText();
+            String errorDescription = "";
+            if (fieldName != null && !fieldName.isEmpty()) {
+              errorDescription += "The field " + fieldName + " of ";
+            }
+            System.out.println(errorDescription + errorNode.get(MESSAGE).asText());
+          }
+        });
+  }
 }

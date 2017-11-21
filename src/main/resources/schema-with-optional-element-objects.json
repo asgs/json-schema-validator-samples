@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "$id": "http://json-schema.org/draft-06/schema#",
+  "title": "Core schema meta-schema",
+  "type": "object",
+  "properties": {
+    "optionalObject1": {
+      "type": "object",
+      "properties": {
+        "mandatoryProp1": {
+          "type": "string"
+        },
+        "optionalProp1": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mandatoryProp1"
+      ]
+    },
+    "optionalObject2": {
+      "type": "object",
+      "properties": {
+        "mandatoryProp2": {
+          "type": "string"
+        },
+        "mandatoryProp3": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mandatoryProp2",
+        "mandatoryProp3"
+      ]
+    },
+    "x": {
+      "type": "boolean"
+    },
+    "y": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "x",
+    "y"
+  ]
+}
