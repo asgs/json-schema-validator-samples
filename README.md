@@ -16,9 +16,9 @@ json-schema-validator library or similar.
 * Learn to use the json-schema-validator library to validate arbitrary JSON 
 data against the schema defined above.
 
-# Build/Run
+# Build and Execute
 
-It's a standard Maven Java project, so run the following commands.
+It's a standard Maven Java project, so the following commands should suffice.
 
-* mvn -e clean package
-* java -jar target/json-schema-validator-samples-1.0-SNAPSHOT.jar
+* `mvn -e clean package`
+* `java -jar target/json-schema-validator-samples-1.0-SNAPSHOT.jar`
