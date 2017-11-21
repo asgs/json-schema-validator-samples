@@ -27,7 +27,8 @@ public class App {
 
   public static void main(String[] args) throws IOException, ProcessingException {
     validateSimple();
-    validateJsonWithOptinalObjectElements();
+    validateJsonWithSomeOptionalObjectElementsHavingMandatoryElementsMissing();
+    validateJsonHavingSomeOptionalObjectElementButMissingSomeOfItsMandatorySubElements();
   }
 
   private static void validateSimple() throws IOException, ProcessingException {
@@ -36,8 +37,19 @@ public class App {
     validate(json, "schema.json");
   }
 
-  private static void validateJsonWithOptinalObjectElements()
+  private static void validateJsonWithSomeOptionalObjectElementsHavingMandatoryElementsMissing()
       throws IOException, ProcessingException {
+    // This is totally fine. Only x and y are mandatory fields, rest are
+    // optional.
+    String json = "{\"x\":true, \"y\":1}";
+    validate(json, "schema-with-optional-element-objects.json");
+  }
+
+  private static void
+      validateJsonHavingSomeOptionalObjectElementButMissingSomeOfItsMandatorySubElements()
+          throws IOException, ProcessingException {
+    // This is not fine because eventhough optionalObjectx is optional, it
+    // has a few mandatory elements which are missing here.
     String json =
         "{\"x\":true, \"y\":1, "
             + "\"optionalObject1\":{\"optionalProp\": \"sdfsdf\"}, "
@@ -53,8 +65,8 @@ public class App {
     JsonSchema jsonSchema =
         JSON_SCHEMA_FACTORY.getJsonSchema(OBJECT_MAPPER.readTree(schemaInputStream));
     ProcessingReport processingReport = jsonSchema.validateUnchecked(jsonNode, true);
-    System.out.println(processingReport);
     System.out.println("----------------");
+    System.out.println("Validation successful? " + processingReport.isSuccess());
     processingReport.forEach(
         m -> {
           if (m.getLogLevel() == LogLevel.ERROR) {
